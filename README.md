@@ -17,10 +17,40 @@ pre-rendered at build time, so there is no server to keep warm.
 
 ```bash
 npm install
+cp .env.example .env.local   # then fill in DATABASE_URL
 npm run dev
 ```
 
-Then open <http://localhost:3000>.
+Then open <http://localhost:3000>. Everything except the contact form works
+without a database.
+
+## Contact form
+
+The form posts to `app/api/contact/route.ts`, which writes to Postgres. It is
+the only server-rendered route — everything else is static.
+
+**Setup**
+
+1. Create a Postgres database (Neon or Supabase both work).
+2. Run `db/schema.sql` against it.
+3. Set `DATABASE_URL` to the **pooled** connection string — Neon's `-pooler`
+   host, or Supabase port 6543. The direct port exhausts connections once
+   serverless functions start scaling.
+4. Add the same variable in Vercel under Settings → Environment Variables.
+
+Never put the connection string in a file that git tracks. `.env*` is ignored;
+`.env.example` is the one exception and carries names only.
+
+**Abuse handling**
+
+- A honeypot field, hidden off-screen, that only bots fill in.
+- Length limits in the route *and* as `CHECK` constraints on the columns —
+  anyone can post straight to the endpoint and skip the route.
+- A per-instance throttle: three messages per minute per IP. Serverless
+  instances do not share memory, so this slows floods rather than stopping
+  them. Real rate limiting would need shared state such as Redis.
+- Database errors are logged server-side and never returned to the client;
+  driver errors can contain the connection string.
 
 ```bash
 npm run build   # production build

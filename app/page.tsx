@@ -1,3 +1,4 @@
+import { ContactForm } from "@/components/ContactForm";
 import { CurveDivider } from "@/components/CurveDivider";
 import { HeroVisual } from "@/components/HeroVisual";
 import { ProjectCard } from "@/components/ProjectCard";
@@ -115,21 +116,26 @@ export default function Home() {
           className="absolute left-1/2 top-1/2 size-[30rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/15 blur-3xl"
         />
 
-        <div className="relative mx-auto max-w-6xl px-6 py-24 text-center sm:px-8 sm:py-28">
-          <Reveal>
+        <div className="relative mx-auto max-w-2xl px-6 py-24 sm:px-8 sm:py-28">
+          <Reveal className="text-center">
             <h2 className="text-4xl font-semibold tracking-tight text-ink-text sm:text-5xl">
               Let&rsquo;s build something
             </h2>
             <p className="mx-auto mt-4 max-w-lg text-lg text-ink-muted">
-              Open to internships and junior developer roles. Email is the
-              fastest way to reach me — I read everything.
+              Open to internships and junior developer roles. Leave a message
+              below, or email me at{" "}
+              <a
+                href={`mailto:${site.email}`}
+                className="text-brand-bright underline-offset-4 hover:underline"
+              >
+                {site.email}
+              </a>
+              .
             </p>
-            <a
-              href={`mailto:${site.email}`}
-              className="mt-10 inline-flex rounded-xl bg-brand px-7 py-3.5 text-sm font-medium text-white transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_-10px_rgb(43_108_255/0.8)]"
-            >
-              {site.email}
-            </a>
+          </Reveal>
+
+          <Reveal delay={120}>
+            <ContactForm />
           </Reveal>
         </div>
       </section>

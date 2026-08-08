@@ -15,8 +15,8 @@ export const site = {
   /** Empty hides the link. */
   linkedin: "",
 
-  /** Feeds canonical URLs, the sitemap and Open Graph. */
-  url: "https://lauanmoreira.dev",
+  /** Feeds canonical URLs, the sitemap and Open Graph. Keep in sync with Vercel. */
+  url: "https://lauanmoreira.vercel.app",
 
   skills: [
     { group: "Languages", items: ["TypeScript", "JavaScript", "Dart", "Python", "SQL"] },
