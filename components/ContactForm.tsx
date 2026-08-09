@@ -48,7 +48,11 @@ export function ContactForm() {
   }
 
   const field =
-    "w-full rounded-xl border border-ink-line bg-ink-soft/60 px-4 py-3 text-ink-text placeholder:text-ink-muted/60 transition-colors focus:border-brand/60 focus:outline-none";
+    // No `focus:outline-none` here: the global `:focus-visible` ring in
+    // globals.css is the accessible indicator. Suppressing it left only the
+    // 60%-opacity border, which measured 2.26:1 against the field — under the
+    // 3:1 that WCAG 1.4.11 requires. The border tint stays as a second cue.
+    "w-full rounded-xl border border-ink-line bg-ink-soft/60 px-4 py-3 text-ink-text placeholder:text-ink-muted/60 transition-colors focus:border-brand/60";
 
   return (
     <form ref={formRef} onSubmit={onSubmit} noValidate className="mt-10 flex flex-col gap-4 text-left">
