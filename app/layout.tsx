@@ -57,7 +57,13 @@ export default function RootLayout({
         </a>
 
         {/* Assumes every page opens with a dark band — the header text is light. */}
-        <header className="absolute inset-x-0 top-0 z-40">
+        {/* Named so the page-turn leaves it alone. Without this the header is
+            part of the root snapshot and turns with the page, which reads as
+            the whole viewport moving rather than a page moving inside it. */}
+        <header
+          className="absolute inset-x-0 top-0 z-40"
+          style={{ viewTransitionName: "site-header" }}
+        >
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6 sm:px-8">
             <Link
               href="/"
@@ -67,13 +73,25 @@ export default function RootLayout({
             </Link>
             <nav aria-label="Main">
               <ul className="flex items-center gap-6 text-sm text-ink-muted">
+                {/* `nav-back` matters only when these are followed from a
+                    project page, where they are a way back to the list. On the
+                    home page they never navigate — SmoothAnchorScroll takes the
+                    click and scrolls instead — so the type is simply unused. */}
                 <li>
-                  <Link href="/#work" className="transition-colors hover:text-ink-text">
+                  <Link
+                    href="/#work"
+                    transitionTypes={["nav-back"]}
+                    className="transition-colors hover:text-ink-text"
+                  >
                     Work
                   </Link>
                 </li>
                 <li className="hidden sm:block">
-                  <Link href="/#stack" className="transition-colors hover:text-ink-text">
+                  <Link
+                    href="/#stack"
+                    transitionTypes={["nav-back"]}
+                    className="transition-colors hover:text-ink-text"
+                  >
                     Stack
                   </Link>
                 </li>

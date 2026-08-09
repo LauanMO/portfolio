@@ -1,6 +1,7 @@
 import { ContactForm } from "@/components/ContactForm";
 import { CurveDivider } from "@/components/CurveDivider";
 import { HeroVisual } from "@/components/HeroVisual";
+import { PageTurn } from "@/components/PageTurn";
 import { ProjectCard } from "@/components/ProjectCard";
 import { Reveal } from "@/components/Reveal";
 import { projects } from "@/content/projects";
@@ -8,7 +9,7 @@ import { site } from "@/content/site";
 
 export default function Home() {
   return (
-    <>
+    <PageTurn>
       <section className="relative overflow-hidden bg-ink">
         <div
           aria-hidden="true"
@@ -142,6 +143,6 @@ export default function Home() {
           </Reveal>
         </div>
       </section>
-    </>
+    </PageTurn>
   );
 }

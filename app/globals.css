@@ -188,6 +188,107 @@
   animation: sheen 7s linear infinite;
 }
 
+/* ---------------------------------------------------------------------------
+   Page-turn transition between the home page and a project page.
+
+   Modelled on a book rather than a slide: going forward, the current page is
+   the leaf that turns away and uncovers the one beneath it; going back, the
+   previous page turns in and covers what was there. Only the leaf moves, which
+   is why one side of each pair animates and the other only settles.
+
+   `perspective` lives inside the transform because these are pseudo-elements —
+   there is no parent to carry a perspective property.
+--------------------------------------------------------------------------- */
+/* The two pages are separate groups, not an old/new pair, so which one covers
+   the other is decided here. z-index on the old or new snapshot would only
+   order them inside their own group, which is not where the contest is. */
+::view-transition-group(.leaf) {
+  z-index: 2;
+}
+::view-transition-group(.under) {
+  z-index: 1;
+}
+
+/* Forward: the leaf is the page being left, turning away. */
+::view-transition-old(.leaf) {
+  transform-origin: left center;
+  backface-visibility: hidden;
+  animation: 620ms cubic-bezier(0.62, 0.02, 0.34, 1) both leaf-turn;
+}
+
+/* Back: the leaf is the page returning, so the same motion runs backwards and
+   it turns in to cover instead of away to reveal. */
+::view-transition-new(.leaf) {
+  transform-origin: left center;
+  backface-visibility: hidden;
+  animation: 620ms cubic-bezier(0.62, 0.02, 0.34, 1) both leaf-turn reverse;
+}
+
+/* The page underneath, arriving (forward) or being left (back). */
+::view-transition-new(.under) {
+  animation: 620ms cubic-bezier(0.33, 1, 0.68, 1) both leaf-under;
+}
+::view-transition-old(.under) {
+  animation: 620ms cubic-bezier(0.33, 1, 0.68, 1) both leaf-under reverse;
+}
+
+@keyframes leaf-turn {
+  from {
+    transform: perspective(2400px) rotateY(0deg);
+    opacity: 1;
+  }
+  /* Held opaque nearly to the end. Fading earlier let the page underneath show
+     through the leaf, and the two read as a double exposure instead of one
+     sheet covering another. It only disappears once it is edge-on and there is
+     nothing left to see anyway. */
+  82% {
+    opacity: 1;
+  }
+  to {
+    transform: perspective(2400px) rotateY(92deg);
+    opacity: 0;
+  }
+}
+
+/* The page underneath was already there before the turn started — it does not
+   arrive. No fade, only a slight settle so the eye registers it as landing. */
+@keyframes leaf-under {
+  from {
+    transform: scale(0.985);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* Everything not named — the page background, the footer, the progress bar —
+   lands in the root snapshot, which otherwise runs the browser's default 250ms
+   crossfade underneath the turn. Those parts live in the layout and are
+   identical on both pages, so fading them only muddies the leaf above. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+/* The overlay swallows clicks for the length of the transition. Letting them
+   through keeps the page usable if someone clicks mid-turn. */
+::view-transition {
+  pointer-events: none;
+}
+
+/* The header is the reader's fixed point. If it turned with the leaf the whole
+   viewport would appear to move, instead of a page moving inside it. */
+::view-transition-group(site-header) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(site-header) {
+  display: none;
+}
+::view-transition-new(site-header) {
+  animation: none;
+}
+
 /* Single switch that turns every animation off. The JS components check the
    same query — keep both in sync. */
 @media (prefers-reduced-motion: reduce) {
@@ -214,5 +315,17 @@
     -webkit-background-clip: border-box;
     background-clip: border-box;
     color: var(--ink-text);
+  }
+
+  /* The `*` rule above does not reach these: view transition pseudo-elements
+     live outside the document tree. Zeroing the durations makes the page swap
+     instantly, which is the browser's behaviour without a transition at all.
+     A leaf turning across the viewport is the kind of large positional motion
+     this preference exists to suppress. */
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
   }
 }
