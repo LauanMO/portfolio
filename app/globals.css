@@ -15,7 +15,11 @@
   --paper-text: #17123a;
   --paper-muted: #5f5980;
 
-  --brand: #2b6cff;
+  /* #2b6cff era 4,48:1 com branco e 4,19:1 sobre --paper-soft, abaixo dos 4,5:1
+     da WCAG 1.4.11 — reprovava botão primário, submit, links dos cards e os
+     rótulos do Stack de uma vez. Este é o azul mais próximo (11 unidades RGB)
+     que passa nos três usos com margem: 4,96 / 4,96 / 4,65. */
+  --brand: #2862fb;
   --brand-bright: #5b8dff;
   --brand-glow: #7c4dff;
 

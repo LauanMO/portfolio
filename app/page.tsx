@@ -126,7 +126,10 @@ export default function Home() {
               below, or email me at{" "}
               <a
                 href={`mailto:${site.email}`}
-                className="text-brand-bright underline-offset-4 hover:underline"
+                /* Sublinhado sempre, não só no hover: contra o texto ao redor
+                   este azul dá 1,23:1, então a cor sozinha não distingue o
+                   link para quem não percebe a diferença de matiz. */
+                className="text-brand-bright underline underline-offset-4"
               >
                 {site.email}
               </a>

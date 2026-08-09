@@ -143,7 +143,12 @@ export function HeroVisual() {
           ref={cardRef}
           type="button"
           onClick={next}
-          aria-label={`Code sample from ${file.project}: ${file.name}. Activate to show the next file.`}
+          // Sem `aria-label` de propósito. WCAG 2.5.3 exige que o nome acessível
+          // contenha o rótulo visível — quem usa comando de voz fala o que lê na
+          // tela. Um aria-label escrito à mão sempre corre atrás do texto
+          // renderizado (o nome do projeto sai em uppercase por CSS, por
+          // exemplo). Deixando o nome ser computado do conteúdo, mais o trecho
+          // `sr-only` abaixo, a correspondência é garantida por construção.
           className="group block w-full cursor-pointer rounded-2xl border border-ink-line bg-ink-soft/90 text-left shadow-2xl shadow-brand/10 backdrop-blur-sm transition-[transform,border-color] duration-300 ease-out will-change-transform hover:border-brand/40"
         >
           <div className="flex items-center gap-2 border-b border-ink-line px-4 py-3">
@@ -159,7 +164,7 @@ export function HeroVisual() {
               {file.name}
             </span>
 
-            <span className="ml-auto shrink-0 font-mono text-[10px] uppercase tracking-wider text-ink-muted/60 transition-colors group-hover:text-brand-bright">
+            <span className="ml-auto shrink-0 font-mono text-[10px] uppercase tracking-wider text-ink-muted transition-colors group-hover:text-brand-bright">
               {file.project}
             </span>
           </div>
@@ -196,25 +201,39 @@ export function HeroVisual() {
               <span aria-hidden="true" className="animate-caret h-4 w-[2px] bg-brand-bright" />
             </div>
           </div>
+
+          {/* Completa o nome acessível do botão, que vem do texto visível acima. */}
+          <span className="sr-only">code sample. Activate to show the next file.</span>
         </button>
       </div>
 
       <div className="relative mt-5 flex items-center justify-center gap-3">
-        <div className="flex gap-1.5">
+        <div className="flex">
           {FILES.map((f, i) => (
+            /* O ponto visível segue com 6px, mas o botão em volta tem 24x24 —
+               o mínimo da WCAG 2.5.8. Antes o alvo era o próprio ponto de 6x6,
+               que no celular exige mira de precisão. O espaçamento entre pontos
+               agora vem do preenchimento do botão, não de um `gap`. */
             <button
               key={f.name}
               type="button"
               onClick={() => setIndex(i)}
               aria-label={`Show ${f.name}`}
               aria-current={i === index}
-              className={`h-1.5 cursor-pointer rounded-full transition-all duration-300 ${
-                i === index ? "w-6 bg-brand-bright" : "w-1.5 bg-ink-line hover:bg-ink-muted"
-              }`}
-            />
+              className="group/dot flex size-6 cursor-pointer items-center justify-center"
+            >
+              <span
+                aria-hidden="true"
+                className={`block h-1.5 rounded-full transition-all duration-300 ${
+                  i === index
+                    ? "w-5 bg-brand-bright"
+                    : "w-1.5 bg-ink-line group-hover/dot:bg-ink-muted"
+                }`}
+              />
+            </button>
           ))}
         </div>
-        <span aria-hidden="true" className="font-mono text-[10px] text-ink-muted/60">
+        <span aria-hidden="true" className="font-mono text-[10px] text-ink-muted">
           click to browse
         </span>
       </div>
