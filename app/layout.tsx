@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import Link from "next/link";
 import { ScrollProgress } from "@/components/ScrollProgress";
+import { SmoothAnchorScroll } from "@/components/SmoothAnchorScroll";
 import { site } from "@/content/site";
 import "./globals.css";
 
@@ -39,9 +40,14 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={outfit.variable}>
+    // `data-scroll-behavior` is how Next is told the stylesheet sets
+    // `scroll-behavior: smooth`. Without it Next cannot suspend that rule while
+    // changing route, so navigating to a project page animates a scroll all the
+    // way to the top instead of simply arriving there.
+    <html lang="en" className={outfit.variable} data-scroll-behavior="smooth">
       <body className="bg-paper font-sans antialiased">
         <ScrollProgress />
+        <SmoothAnchorScroll />
 
         <a
           href="#main"
