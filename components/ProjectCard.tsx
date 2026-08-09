@@ -4,7 +4,7 @@ import { StatusBadge } from "./StatusBadge";
 
 export function ProjectCard({ project }: { project: Project }) {
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-paper-line bg-paper shadow-[0_1px_2px_rgb(23_18_58/0.04)] transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-1.5 hover:border-brand/35 hover:shadow-[0_18px_40px_-18px_rgb(43_108_255/0.35)]">
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-paper-line bg-paper shadow-[0_1px_2px] shadow-paper-text/[0.04] transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-1.5 hover:border-brand/35 hover:shadow-[0_18px_40px_-18px] hover:shadow-brand/35">
       <div className="relative h-32 overflow-hidden bg-ink">
         <div className="absolute -inset-8 bg-linear-to-br from-brand/45 via-brand-glow/25 to-transparent blur-2xl transition-opacity duration-300 group-hover:opacity-80" />
         <div className="relative flex h-full items-center justify-center">

@@ -36,7 +36,7 @@ export default function Home() {
             <div className="animate-rise mt-10 flex flex-wrap items-center gap-4 [animation-delay:360ms]">
               <a
                 href="#work"
-                className="rounded-xl bg-brand px-6 py-3 text-sm font-medium text-white transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_-10px_rgb(43_108_255/0.8)]"
+                className="rounded-xl bg-brand px-6 py-3 text-sm font-medium text-white transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_-10px] hover:shadow-brand/80"
               >
                 See my work
               </a>

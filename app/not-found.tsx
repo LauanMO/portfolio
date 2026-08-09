@@ -25,7 +25,7 @@ export default function NotFound() {
         </p>
         <Link
           href="/"
-          className="animate-rise mt-10 inline-flex rounded-xl bg-brand px-6 py-3 text-sm font-medium text-white transition-[transform,box-shadow] duration-300 [animation-delay:300ms] hover:-translate-y-0.5 hover:shadow-[0_12px_30px_-10px_rgb(43_108_255/0.8)]"
+          className="animate-rise mt-10 inline-flex rounded-xl bg-brand px-6 py-3 text-sm font-medium text-white transition-[transform,box-shadow] duration-300 [animation-delay:300ms] hover:-translate-y-0.5 hover:shadow-[0_12px_30px_-10px] hover:shadow-brand/80"
         >
           Back home
         </Link>

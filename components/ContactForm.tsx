@@ -111,7 +111,7 @@ export function ContactForm() {
         <button
           type="submit"
           disabled={status === "sending"}
-          className="rounded-xl bg-brand px-7 py-3 text-sm font-medium text-white transition-[transform,box-shadow,opacity] duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_-10px_rgb(43_108_255/0.8)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+          className="rounded-xl bg-brand px-7 py-3 text-sm font-medium text-white transition-[transform,box-shadow,opacity] duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_-10px] hover:shadow-brand/80 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
         >
           {status === "sending" ? "Sending…" : "Send message"}
         </button>
