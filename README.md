@@ -1,5 +1,7 @@
 # Portfolio
 
+[![CI](https://github.com/LauanMO/portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/LauanMO/portfolio/actions/workflows/ci.yml)
+
 Personal portfolio built with Next.js. Static by default — every page is
 pre-rendered at build time, so there is no server to keep warm.
 
