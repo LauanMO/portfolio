@@ -63,8 +63,8 @@ export default function Home() {
           <Reveal className="text-center">
             <h2 className="text-4xl font-semibold tracking-tight sm:text-5xl">My work</h2>
             <p className="mx-auto mt-4 max-w-xl text-lg text-paper-muted">
-              Projects I designed and built end to end. Each one solves a problem
-              I ran into myself.
+              Solo projects and team projects where I own a clear part, from the
+              database to the screen. Each one solves a real problem.
             </p>
           </Reveal>
 
