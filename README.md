@@ -44,6 +44,8 @@ The site used to live at <https://lauanmoreira.vercel.app>. `vercel.json` keeps
 that address as a permanent redirect to the same page here, so links already
 shared keep working. It deploys there as plain static files
 (`"framework": null`) because Vercel's Next.js build skipped the redirects.
+`"trailingSlash": false` drops a trailing slash first, since the redirect rule
+only matches paths without one.
 
 ## Contact form
 
