@@ -19,15 +19,29 @@ export default function Home() {
           aria-hidden="true"
           className="absolute -right-32 top-40 size-[28rem] rounded-full bg-brand-glow/15 blur-3xl"
         />
+        <div
+          aria-hidden="true"
+          className="dot-grid absolute inset-0 [mask-image:radial-gradient(ellipse_at_30%_40%,black_20%,transparent_70%)]"
+        />
 
-        <div className="relative mx-auto grid max-w-6xl items-center gap-16 px-6 pb-24 pt-36 sm:px-8 sm:pb-32 sm:pt-44 lg:grid-cols-[1.05fr_1fr] lg:gap-12">
+        {/* minmax(0, …): the code window's long lines are clipped inside it;
+            without the zero minimum they would widen the column instead and
+            push the text off the side of a phone. */}
+        <div className="relative mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)] items-center gap-16 px-6 pb-24 pt-36 sm:px-8 sm:pb-32 sm:pt-44 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-12">
           <div>
-            <p className="animate-rise font-mono text-sm text-brand-bright [animation-delay:0ms]">
-              {site.role} · {site.location}
+            <p className="animate-rise inline-flex items-center gap-2.5 rounded-full border border-ink-line bg-ink-soft/70 py-1.5 pl-3 pr-4 text-sm text-ink-muted [animation-delay:0ms]">
+              <span aria-hidden="true" className="relative flex size-2">
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+                <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
+              </span>
+              Open to internships · {site.location}
             </p>
 
-            <h1 className="animate-rise mt-5 text-5xl font-semibold leading-[1.05] tracking-tight text-ink-text [animation-delay:120ms] sm:text-6xl lg:text-7xl">
+            <h1 className="animate-rise mt-6 text-5xl font-semibold leading-[1.02] tracking-tight text-ink-text [animation-delay:120ms] sm:text-6xl lg:text-7xl">
               <span className="text-sheen">{site.name}</span>
+              <span className="mt-3 block text-3xl font-medium tracking-tight text-ink-muted sm:text-4xl">
+                Full-stack developer
+              </span>
             </h1>
 
             <p className="animate-rise mt-7 max-w-xl text-lg leading-relaxed text-ink-muted [animation-delay:240ms]">

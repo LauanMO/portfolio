@@ -30,7 +30,7 @@ export function StatusBadge({
 }) {
   return (
     <span
-      className={`inline-flex shrink-0 items-center rounded-full border px-3 py-0.5 text-xs font-medium ${STYLES[status][tone]}`}
+      className={`inline-flex shrink-0 items-center rounded-full border px-3 py-0.5 text-[13px] font-medium ${STYLES[status][tone]}`}
     >
       {LABELS[status]}
     </span>

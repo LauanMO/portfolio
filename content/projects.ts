@@ -5,10 +5,26 @@ export type Project = {
   summary: string;
   year: string;
   status: "shipped" | "in-progress" | "prototype";
+  /** Two short areas, e.g. "Mobile · Maps". Shown on the card and the project page. */
+  disciplines: string;
   /** Omit when the repository is private — the page renders a label instead. */
   repo?: string;
   demo?: string;
-  /** Only the first four render on the home card. */
+  /**
+   * A real screenshot of the running project (in public/), shown on its card
+   * and its page inside a browser window or a phone. `ground` is the colour
+   * around it, taken from the screenshot (for a phone, from the app's brand
+   * colour, so the screen still reads as a screen). Without one, the card
+   * shows the project's name on the dark gradient instead.
+   */
+  image?: {
+    src: string;
+    width: number;
+    height: number;
+    alt: string;
+    ground: string;
+    frame: "desktop" | "phone";
+  };
   stack: string[];
   highlights: string[];
   details: { heading: string; body: string }[];
@@ -25,7 +41,16 @@ export const projects: Project[] = [
       "areas become visible to everyone nearby.",
     year: "2026",
     status: "prototype",
+    disciplines: "Mobile · Maps",
     repo: "https://github.com/EdersonSouzaa/ElaSegura",
+    image: {
+      src: "/images/projects/elasegura.webp",
+      width: 640,
+      height: 1385,
+      alt: "ElaSegura's welcome screen on a phone: “Sua segurança, nossa prioridade”, with a button to begin.",
+      ground: "#a52a5c",
+      frame: "phone",
+    },
     stack: [
       "React Native",
       "Expo",
@@ -69,7 +94,16 @@ export const projects: Project[] = [
       "owner of the Supabase layer: every schema change, migration and database version goes through my review.",
     year: "2026",
     status: "in-progress",
+    disciplines: "Database · Realtime",
     repo: "https://github.com/SerialSX/Organiza-",
+    image: {
+      src: "/images/projects/organiza.webp",
+      width: 1600,
+      height: 1000,
+      alt: "Organiza+ taking a new order: eight tables, the menu with prices and the order panel filling up.",
+      ground: "#0b192e",
+      frame: "desktop",
+    },
     stack: [
       "Supabase",
       "PostgreSQL",
@@ -115,8 +149,17 @@ export const projects: Project[] = [
       "rather than folders in a monolith.",
     year: "2026",
     status: "shipped",
+    disciplines: "Full stack · AI",
     repo: "https://github.com/LauanMO/MandaRim",
     demo: "https://mandarim-seven.vercel.app",
+    image: {
+      src: "/images/projects/mandarim.webp",
+      width: 1600,
+      height: 1000,
+      alt: "A MandaRim multiple-choice exercise asking what 学生 (xuésheng) means, with four answers to pick from.",
+      ground: "#0d0c14",
+      frame: "desktop",
+    },
     stack: [
       "React 18",
       "TypeScript",
@@ -177,6 +220,7 @@ export const projects: Project[] = [
       "per working day — to answer one question honestly: what did today actually pay?",
     year: "2026",
     status: "prototype",
+    disciplines: "Flutter · Finance",
     stack: [
       "Flutter",
       "Dart",
@@ -232,6 +276,7 @@ export const projects: Project[] = [
       "scan, and pull requests are held to Gitflow and Conventional Commits.",
     year: "2026",
     status: "in-progress",
+    disciplines: "Roblox · CI",
     stack: ["Luau", "Roblox", "Rojo", "GitHub Actions", "Wally", "Lune", "StyLua", "Selene"],
     highlights: [
       "--!strict typing everywhere, enforced by a repository check script.",
@@ -258,7 +303,17 @@ export const projects: Project[] = [
       "in data files, so new ones are added without touching the code.",
     year: "2026",
     status: "in-progress",
+    disciplines: "Game · PWA",
     repo: "https://github.com/LauanMO/plantao-vet",
+    demo: "https://lauanmo.github.io/plantao-vet/",
+    image: {
+      src: "/images/projects/plantao-vet.webp",
+      width: 1600,
+      height: 1000,
+      alt: "Plantão Vet in pixel art: the student at the exam table with Faísca the cat, and the owner describing the symptoms.",
+      ground: "#1b1a26",
+      frame: "desktop",
+    },
     stack: ["React", "TypeScript", "Vite", "PWA", "Zod", "Vitest", "Playwright"],
     highlights: [
       "Follows the real consultation order: history, physical exam, tests, diagnosis and prescription.",
@@ -285,6 +340,7 @@ export const projects: Project[] = [
       "report of the skills the market asks for and the résumé still lacks.",
     year: "2026",
     status: "shipped",
+    disciplines: "Python · AI",
     stack: ["Python", "Claude API", "Telegram", "pytest"],
     highlights: [
       "Collectors for Gupy, Himalayas, GitHub job repositories and, optionally, Adzuna.",
@@ -311,8 +367,17 @@ export const projects: Project[] = [
       "with Zod validation and SQLite, and a React PWA.",
     year: "2026",
     status: "shipped",
+    disciplines: "API · PWA",
     repo: "https://github.com/LauanMO/Circula",
     demo: "https://vortexlm.vercel.app",
+    image: {
+      src: "/images/projects/circula.webp",
+      width: 1600,
+      height: 1000,
+      alt: "Circula's home page: the pitch to students leaving campus, and live counts of the items listed.",
+      ground: "#f6f8f7",
+      frame: "desktop",
+    },
     stack: ["React 19", "TypeScript", "Fastify", "Zod", "SQLite", "Vite", "PWA"],
     highlights: [
       "Installable PWA with a hand-written service worker.",
@@ -332,27 +397,45 @@ export const projects: Project[] = [
   {
     slug: "alexandria",
     name: "Alexandria",
-    tagline: "Social network for readers, my capstone project, where I lead the back-end",
+    tagline: "Mobile reading app, my capstone project, where I lead the back-end",
     summary:
-      "A Letterboxd-style platform for books: catalogue, community ratings, reviews and a social feed. I lead " +
-      "the back-end: a Spring Boot REST API with Spring Security and JWT, a layered design, and code review of " +
-      "the team's back-end pull requests.",
+      "A personal library on the phone: search books on Open Library, track reading status, rate and comment, " +
+      "with a profile photo and password recovery by a code sent by e-mail. My team's capstone project at " +
+      "UNIFOR, a React Native app on Expo with a Node.js API deployed on Railway. I lead the back-end.",
     year: "2026",
     status: "in-progress",
+    disciplines: "Mobile · Back end",
     repo: "https://github.com/Dragoneto/Alexandria",
-    stack: ["Java 17", "Spring Boot", "Spring Security", "PostgreSQL", "JWT", "React"],
+    stack: [
+      "React Native",
+      "Expo",
+      "TypeScript",
+      "Node.js",
+      "Express",
+      "PostgreSQL",
+      "JWT",
+      "Nodemailer",
+      "Railway",
+    ],
     highlights: [
-      "Stateless JWT authentication with BCrypt-hashed passwords.",
-      "Controller/Service/Repository layers with validated DTOs and global exception handling.",
-      "Book data from the Google Books API.",
-      "Weekly Scrum sprints, with code review of every back-end pull request.",
+      "Password recovery with a 6-digit code, from the API to the app's screens, with the code sent through Gmail.",
+      "The routes that read ratings and the data layer for comments.",
+      "Graceful handling when the Open Library search fails.",
+      "A GitHub Actions workflow that merges approved pull requests in the team's Git Flow.",
     ],
     details: [
       {
         heading: "Leading the back-end",
         body:
-          "I split the back-end work across the team, review its pull requests and keep the API conventions " +
-          "consistent: layered code, validated input and one place where errors become HTTP responses.",
+          "As back-end lead I review the team's back-end pull requests. Sessions are JWTs, passwords are " +
+          "hashed with bcrypt, and a local mode keeps the data in a file, so anyone can run the API without " +
+          "installing PostgreSQL.",
+      },
+      {
+        heading: "A second safety net in my fork",
+        body:
+          "My fork adds a CI that runs the API tests, the app's type check, tests and lint, and a smoke test " +
+          "of the API on every push and pull request to main and dev.",
       },
     ],
   },
@@ -366,6 +449,7 @@ export const projects: Project[] = [
       "levels generates a new map on every run.",
     year: "2026",
     status: "in-progress",
+    disciplines: "Godot · Education",
     repo: "https://github.com/SerialSX/MinhaLuz",
     stack: ["Godot", "GDScript", "Procedural maps"],
     highlights: [

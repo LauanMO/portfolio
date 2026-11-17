@@ -2,75 +2,123 @@
 
 import { useEffect, useRef, useState } from "react";
 
-/** Decorative bars standing in for code. Not meant to be read. */
-type Line = { w: string; tone: string; indent?: number };
+/**
+ * Real code, copied line for line from the projects' public repositories, so
+ * each line can be checked against the file it names. `// …` marks the one
+ * place where lines in between were skipped.
+ */
+const SNIPPETS: { project: string; path: string; lang: "js" | "sql"; code: string }[] = [
+  {
+    project: "MandaRim",
+    path: "backend/src/routes/user.js",
+    lang: "js",
+    code: `const INTERVALS = [0, 1, 2, 4, 7, 15];
+const MAX_BOX = INTERVALS.length - 1;
+// …
+  if (correct) {
+    box = Math.min(box + 1, MAX_BOX);
+    correctCount += 1;
+  } else {
+    box = Math.max(box - 1, 0);
+    wrongCount += 1;
+  }`,
+  },
+  {
+    project: "Organiza+",
+    path: "supabase/migracoes/2026-10-22_ingredientes-custo-e-versao.sql",
+    lang: "sql",
+    code: `create table if not exists public.ingredientes (
+  id uuid primary key default gen_random_uuid(),
+  negocio_id uuid not null references public.negocios (id) on delete cascade,
+  nome text not null check (length(trim(nome)) between 1 and 60),
+  unidade text not null check (unidade in ('g', 'ml', 'un')),
+  preco_compra numeric(10, 2) check (preco_compra between 0 and 99999.99),
+  quantidade_compra numeric(12, 3) check (quantidade_compra between 1 and 1000000),
+  -- "Excluir" arquiva: some da lista e sai dos produtos.
+  arquivado boolean not null default false,
+  criado_em timestamptz not null default now(),`,
+  },
+  {
+    project: "Plantão Vet",
+    path: "src/modelo/caso.ts",
+    lang: "js",
+    code: `export const casoSchema = z
+  .strictObject({
+    id: texto,
+    materia: texto,
+    tema: texto,
+    dificuldade: z.number().int().min(1),
+    cenario: z.enum(['consultorio', 'campo']),
+    paciente: z.strictObject({
+      nome: texto,
+      especie: z.enum(['cão', 'gato', 'bovino', 'equino']),`,
+  },
+  {
+    project: "Circula",
+    path: "api/src/rotas.ts",
+    lang: "js",
+    code: `const filtros = z.object({
+  categoria: z.enum(CATEGORIAS).optional(),
+  usuarioId: usuarioId.optional(),
+  limite: z.coerce.number().int().positive().max(100).optional(),
+});
 
-const FILES: { name: string; project: string; lines: Line[] }[] = [
-  {
-    name: "motor_calculo.dart",
-    project: "Liquido",
-    lines: [
-      { w: "58%", tone: "bg-sky-400/80" },
-      { w: "40%", tone: "bg-fuchsia-400/70", indent: 1 },
-      { w: "72%", tone: "bg-slate-400/45", indent: 2 },
-      { w: "48%", tone: "bg-emerald-400/70", indent: 2 },
-      { w: "64%", tone: "bg-slate-400/45", indent: 2 },
-      { w: "34%", tone: "bg-amber-400/70", indent: 1 },
-      { w: "56%", tone: "bg-sky-400/70", indent: 1 },
-      { w: "26%", tone: "bg-slate-400/45" },
-    ],
-  },
-  {
-    name: "gemini.py",
-    project: "MandaRim",
-    lines: [
-      { w: "44%", tone: "bg-amber-400/80" },
-      { w: "66%", tone: "bg-slate-400/45" },
-      { w: "52%", tone: "bg-emerald-400/75", indent: 1 },
-      { w: "76%", tone: "bg-slate-400/45", indent: 2 },
-      { w: "38%", tone: "bg-fuchsia-400/70", indent: 2 },
-      { w: "60%", tone: "bg-sky-400/70", indent: 2 },
-      { w: "30%", tone: "bg-amber-400/70", indent: 1 },
-      { w: "48%", tone: "bg-slate-400/45" },
-    ],
-  },
-  {
-    name: "schema.js",
-    project: "MandaRim",
-    lines: [
-      { w: "50%", tone: "bg-fuchsia-400/75" },
-      { w: "36%", tone: "bg-sky-400/70", indent: 1 },
-      { w: "62%", tone: "bg-slate-400/45", indent: 2 },
-      { w: "44%", tone: "bg-slate-400/45", indent: 2 },
-      { w: "70%", tone: "bg-emerald-400/70", indent: 2 },
-      { w: "40%", tone: "bg-slate-400/45", indent: 2 },
-      { w: "54%", tone: "bg-amber-400/70", indent: 1 },
-      { w: "22%", tone: "bg-fuchsia-400/60" },
-    ],
-  },
-  {
-    name: "Exercise.tsx",
-    project: "MandaRim",
-    lines: [
-      { w: "46%", tone: "bg-sky-400/80" },
-      { w: "58%", tone: "bg-slate-400/45", indent: 1 },
-      { w: "34%", tone: "bg-fuchsia-400/70", indent: 1 },
-      { w: "68%", tone: "bg-emerald-400/70", indent: 2 },
-      { w: "50%", tone: "bg-slate-400/45", indent: 3 },
-      { w: "42%", tone: "bg-sky-400/70", indent: 2 },
-      { w: "62%", tone: "bg-slate-400/45", indent: 1 },
-      { w: "28%", tone: "bg-amber-400/70" },
-    ],
+export async function rotasAnuncios(app: FastifyInstance) {
+  // Sonda de saúde. Útil no deploy e para conferir rapidamente se a API subiu.
+  app.get('/health', async () => ({ status: 'ok' }));`,
   },
 ];
 
+const KEYWORDS = {
+  js: new Set(["const", "let", "if", "else", "return", "export", "async", "await", "function", "new", "true", "false", "null"]),
+  sql: new Set(["create", "table", "if", "not", "exists", "primary", "key", "default", "references", "on", "delete", "cascade", "check", "between", "and", "in", "null", "unique", "uuid", "text", "numeric", "boolean", "timestamptz", "true", "false"]),
+};
+
+const COLOURS = {
+  keyword: "text-fuchsia-300",
+  string: "text-emerald-300",
+  number: "text-amber-300",
+  comment: "text-ink-muted",
+  call: "text-sky-300",
+  plain: "text-ink-text/90",
+};
+
+/** Just enough highlighting for these four snippets: no parser, one pass per line. */
+function highlight(line: string, lang: "js" | "sql") {
+  const comment = lang === "sql" ? "--" : "//";
+  const at = line.indexOf(comment);
+  const code = at === -1 ? line : line.slice(0, at);
+  const parts: { text: string; tone: keyof typeof COLOURS }[] = [];
+
+  for (const match of code.matchAll(/('(?:[^'\\]|\\.)*')|(\b\d+(?:\.\d+)?\b)|([A-Za-z_$][\w$]*)|([^'A-Za-z_$\d]+)/g)) {
+    const [text, string, number, word] = match;
+    if (string) parts.push({ text, tone: "string" });
+    else if (number) parts.push({ text, tone: "number" });
+    else if (word && KEYWORDS[lang].has(word)) parts.push({ text, tone: "keyword" });
+    else if (word && code[(match.index ?? 0) + word.length] === "(") parts.push({ text, tone: "call" });
+    else parts.push({ text, tone: "plain" });
+  }
+  if (at !== -1) parts.push({ text: line.slice(at), tone: "comment" });
+  return parts;
+}
+
+const AUTO_ADVANCE_MS = 7000;
+
 export function HeroVisual() {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const cardRef = useRef<HTMLButtonElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
 
-  const file = FILES[index];
-  const next = () => setIndex((i) => (i + 1) % FILES.length);
+  const snippet = SNIPPETS[index];
+  const next = () => setIndex((i) => (i + 1) % SNIPPETS.length);
+
+  // Turns the page on its own, unless the visitor is reading or asked for less motion.
+  useEffect(() => {
+    if (paused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const timer = setTimeout(() => setIndex((i) => (i + 1) % SNIPPETS.length), AUTO_ADVANCE_MS);
+    return () => clearTimeout(timer);
+  }, [index, paused]);
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -102,8 +150,8 @@ export function HeroVisual() {
       if (!rect.width || !rect.height) return;
       const relX = (event.clientX - rect.left) / rect.width - 0.5;
       const relY = (event.clientY - rect.top) / rect.height - 0.5;
-      targetX = Math.max(-9, Math.min(9, relX * 18));
-      targetY = Math.max(-7, Math.min(7, -relY * 14));
+      targetX = Math.max(-8, Math.min(8, relX * 16));
+      targetY = Math.max(-6, Math.min(6, -relY * 12));
       if (!frame) frame = requestAnimationFrame(apply);
     };
 
@@ -128,7 +176,14 @@ export function HeroVisual() {
   }, []);
 
   return (
-    <div ref={wrapRef} className="relative mx-auto w-full max-w-lg select-none">
+    <div
+      ref={wrapRef}
+      className="relative mx-auto w-full max-w-xl select-none"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+    >
       <div
         aria-hidden="true"
         className="animate-pulse-glow absolute -inset-10 rounded-full bg-brand/25 blur-3xl"
@@ -139,102 +194,75 @@ export function HeroVisual() {
       />
 
       <div className="animate-float relative">
-        <button
+        {/* A click anywhere on the window shows the next file, for the mouse;
+            the buttons underneath do the same for everyone else. */}
+        <div
           ref={cardRef}
-          type="button"
           onClick={next}
-          // Sem `aria-label` de propósito. WCAG 2.5.3 exige que o nome acessível
-          // contenha o rótulo visível — quem usa comando de voz fala o que lê na
-          // tela. Um aria-label escrito à mão sempre corre atrás do texto
-          // renderizado (o nome do projeto sai em uppercase por CSS, por
-          // exemplo). Deixando o nome ser computado do conteúdo, mais o trecho
-          // `sr-only` abaixo, a correspondência é garantida por construção.
-          className="group block w-full cursor-pointer rounded-2xl border border-ink-line bg-ink-soft/90 text-left shadow-2xl shadow-brand/10 backdrop-blur-sm transition-[transform,border-color] duration-300 ease-out will-change-transform hover:border-brand/40"
+          className="group cursor-pointer overflow-hidden rounded-2xl border border-ink-line bg-ink-soft/90 shadow-2xl shadow-brand/10 backdrop-blur-sm transition-[transform,border-color] duration-300 ease-out will-change-transform hover:border-brand/40"
         >
           <div className="flex items-center gap-2 border-b border-ink-line px-4 py-3">
-            <span aria-hidden="true" className="size-3 rounded-full bg-red-400/70" />
-            <span aria-hidden="true" className="size-3 rounded-full bg-amber-400/70" />
-            <span aria-hidden="true" className="size-3 rounded-full bg-emerald-400/70" />
-
-            {/* aria-live: announces the file change without stealing focus. */}
-            <span
-              aria-live="polite"
-              className="ml-3 truncate font-mono text-xs text-ink-muted"
-            >
-              {file.name}
-            </span>
-
-            <span className="ml-auto shrink-0 font-mono text-[10px] uppercase tracking-wider text-ink-muted transition-colors group-hover:text-brand-bright">
-              {file.project}
-            </span>
+            <span aria-hidden="true" className="size-3 shrink-0 rounded-full bg-red-400/70" />
+            <span aria-hidden="true" className="size-3 shrink-0 rounded-full bg-amber-400/70" />
+            <span aria-hidden="true" className="size-3 shrink-0 rounded-full bg-emerald-400/70" />
+            <span className="ml-3 truncate font-mono text-[13px] text-ink-muted">{snippet.path}</span>
+            <span className="ml-auto shrink-0 text-[13px] font-medium text-brand-bright">{snippet.project}</span>
           </div>
 
           {/* key: remounting on change replays the per-line entrance. */}
-          <div key={index} className="flex flex-col gap-2.5 p-5">
-            {file.lines.map((line, i) => (
-              <div key={i} className="flex items-center gap-3">
+          <pre
+            key={index}
+            aria-label={`Code from ${snippet.project}, ${snippet.path}`}
+            className="overflow-hidden px-4 py-5 font-mono text-[13px] leading-6"
+          >
+            <code>
+              {snippet.code.split("\n").map((line, i) => (
                 <span
-                  aria-hidden="true"
-                  className="w-4 shrink-0 text-right font-mono text-[10px] text-ink-muted/50"
+                  key={i}
+                  className="animate-line-in flex"
+                  style={{ animationDelay: `${i * 45}ms` }}
                 >
-                  {i + 1}
+                  <span aria-hidden="true" className="w-6 shrink-0 select-none pr-4 text-right text-ink-muted/60">
+                    {i + 1}
+                  </span>
+                  <span className="whitespace-pre">
+                    {highlight(line, snippet.lang).map((part, j) => (
+                      <span key={j} className={COLOURS[part.tone]}>
+                        {part.text}
+                      </span>
+                    ))}
+                  </span>
                 </span>
-                <span
-                  aria-hidden="true"
-                  className={`animate-line-in h-2 rounded-full ${line.tone}`}
-                  style={{
-                    width: line.w,
-                    marginLeft: `${(line.indent ?? 0) * 14}px`,
-                    animationDelay: `${i * 45}ms`,
-                  }}
-                />
-              </div>
-            ))}
-
-            <div className="flex items-center gap-3">
-              <span
-                aria-hidden="true"
-                className="w-4 shrink-0 text-right font-mono text-[10px] text-ink-muted/50"
-              >
-                {file.lines.length + 1}
-              </span>
-              <span aria-hidden="true" className="animate-caret h-4 w-[2px] bg-brand-bright" />
-            </div>
-          </div>
-
-          {/* Completa o nome acessível do botão, que vem do texto visível acima. */}
-          <span className="sr-only">code sample. Activate to show the next file.</span>
-        </button>
+              ))}
+            </code>
+          </pre>
+        </div>
       </div>
 
       <div className="relative mt-5 flex items-center justify-center gap-3">
         <div className="flex">
-          {FILES.map((f, i) => (
-            /* O ponto visível segue com 6px, mas o botão em volta tem 24x24 —
-               o mínimo da WCAG 2.5.8. Antes o alvo era o próprio ponto de 6x6,
-               que no celular exige mira de precisão. O espaçamento entre pontos
-               agora vem do preenchimento do botão, não de um `gap`. */
+          {SNIPPETS.map((s, i) => (
+            /* The dot stays 6px, but the button around it is 24x24, the WCAG
+               2.5.8 minimum target. */
             <button
-              key={f.name}
+              key={s.path}
               type="button"
               onClick={() => setIndex(i)}
-              aria-label={`Show ${f.name}`}
+              aria-label={`Show code from ${s.project}`}
               aria-current={i === index}
               className="group/dot flex size-6 cursor-pointer items-center justify-center"
             >
               <span
                 aria-hidden="true"
                 className={`block h-1.5 rounded-full transition-all duration-300 ${
-                  i === index
-                    ? "w-5 bg-brand-bright"
-                    : "w-1.5 bg-ink-line group-hover/dot:bg-ink-muted"
+                  i === index ? "w-5 bg-brand-bright" : "w-1.5 bg-ink-line group-hover/dot:bg-ink-muted"
                 }`}
               />
             </button>
           ))}
         </div>
-        <span aria-hidden="true" className="font-mono text-[10px] text-ink-muted">
-          click to browse
+        <span aria-hidden="true" className="text-[13px] text-ink-muted">
+          Real code from my projects
         </span>
       </div>
     </div>

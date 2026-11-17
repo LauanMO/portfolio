@@ -1,50 +1,29 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useId, useState } from "react";
+import { site } from "@/content/site";
 
-type Status = "idle" | "sending" | "sent" | "error";
-
+/**
+ * GitHub Pages serves static files only, so there is no server to post to.
+ * The form writes the email instead: it opens the visitor's own email app,
+ * addressed to me, with the subject and message filled in, ready to send.
+ * The browser's own validation runs first (required fields, email format).
+ */
 export function ContactForm() {
-  const [status, setStatus] = useState<Status>("idle");
-  const [error, setError] = useState("");
-  const formRef = useRef<HTMLFormElement>(null);
+  const [opened, setOpened] = useState(false);
   const id = useId();
 
-  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (status === "sending") return;
-
-    setStatus("sending");
-    setError("");
-
     const data = new FormData(event.currentTarget);
+    const name = String(data.get("name") ?? "").trim();
+    const email = String(data.get("email") ?? "").trim();
+    const message = String(data.get("message") ?? "").trim();
 
-    try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: data.get("name"),
-          email: data.get("email"),
-          message: data.get("message"),
-          website: data.get("website"),
-        }),
-      });
-
-      const payload = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        setError(payload.error ?? "Something went wrong.");
-        setStatus("error");
-        return;
-      }
-
-      formRef.current?.reset();
-      setStatus("sent");
-    } catch {
-      setError("Network error. Check your connection and try again.");
-      setStatus("error");
-    }
+    const subject = `Portfolio: message from ${name}`;
+    const body = `${message}\n\n${name}\n${email}`;
+    window.location.href = `mailto:${site.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    setOpened(true);
   }
 
   const field =
@@ -55,7 +34,7 @@ export function ContactForm() {
     "w-full rounded-xl border border-ink-line bg-ink-soft/60 px-4 py-3 text-ink-text placeholder:text-ink-muted/60 transition-colors focus:border-brand/60";
 
   return (
-    <form ref={formRef} onSubmit={onSubmit} noValidate className="mt-10 flex flex-col gap-4 text-left">
+    <form onSubmit={onSubmit} className="mt-10 flex flex-col gap-4 text-left">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor={`${id}-name`} className="mb-1.5 block text-sm text-ink-muted">
@@ -90,39 +69,38 @@ export function ContactForm() {
         <label htmlFor={`${id}-message`} className="mb-1.5 block text-sm text-ink-muted">
           Message
         </label>
+        {/* Capped below the ~2000 characters some email apps accept in a link. */}
         <textarea
           id={`${id}-message`}
           name="message"
           required
           rows={5}
-          maxLength={4000}
+          maxLength={1500}
           className={`${field} resize-y`}
         />
       </div>
 
-      {/* Honeypot: off-screen rather than display:none, which some bots skip.
-          aria-hidden and tabIndex keep it away from people entirely. */}
-      <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
-        <label htmlFor={`${id}-website`}>Leave this empty</label>
-        <input id={`${id}-website`} name="website" tabIndex={-1} autoComplete="off" />
-      </div>
-
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
         <button
           type="submit"
-          disabled={status === "sending"}
-          className="rounded-xl bg-brand px-7 py-3 text-sm font-medium text-white transition-[transform,box-shadow,opacity] duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_-10px] hover:shadow-brand/80 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+          className="inline-flex items-center gap-2 rounded-xl bg-brand px-7 py-3 text-sm font-medium text-white transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_-10px] hover:shadow-brand/80"
         >
-          {status === "sending" ? "Sending…" : "Send message"}
+          Send message
+          <span aria-hidden="true">→</span>
         </button>
 
-        {/* One live region for both outcomes, so a screen reader announces
-            whichever arrives without the other stealing the update. */}
-        <p aria-live="polite" className="text-sm">
-          {status === "sent" && (
-            <span className="text-emerald-400">Thanks — I&rsquo;ll get back to you.</span>
+        <p aria-live="polite" className="text-sm text-ink-muted">
+          {opened ? (
+            <>
+              Your email app should open with the message ready to send. If it did not, write to{" "}
+              <a href={`mailto:${site.email}`} className="text-brand-bright underline underline-offset-4">
+                {site.email}
+              </a>
+              .
+            </>
+          ) : (
+            "Opens your email app with the message ready to send."
           )}
-          {status === "error" && <span className="text-red-400">{error}</span>}
         </p>
       </div>
     </form>

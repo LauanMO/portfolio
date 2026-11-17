@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CurveDivider } from "@/components/CurveDivider";
 import { PageTurn } from "@/components/PageTurn";
+import { ProjectShot } from "@/components/ProjectShot";
 import { Reveal } from "@/components/Reveal";
 import { StatusBadge } from "@/components/StatusBadge";
 import { getProject, projects } from "@/content/projects";
@@ -25,12 +26,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: project.name,
     description: project.tagline,
-    alternates: { canonical: `/projects/${project.slug}` },
+    alternates: { canonical: `/projects/${project.slug}/` },
     openGraph: {
       type: "article",
       title: project.name,
       description: project.tagline,
-      url: `/projects/${project.slug}`,
+      url: `/projects/${project.slug}/`,
     },
   };
 }
@@ -74,6 +75,7 @@ export default async function ProjectPage({ params }: PageProps) {
 
             <div className="animate-rise mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm [animation-delay:300ms]">
               <span className="font-mono text-ink-muted">{project.year}</span>
+              <span className="text-ink-muted">{project.disciplines}</span>
               {project.repo ? (
                 <a
                   href={project.repo}
@@ -97,6 +99,17 @@ export default async function ProjectPage({ params }: PageProps) {
                 </a>
               )}
             </div>
+
+            {project.image && (
+              <div className="animate-rise mt-12 [animation-delay:400ms]">
+                <ProjectShot
+                  image={project.image}
+                  demo={project.demo}
+                  preload
+                  className="aspect-[16/10] rounded-2xl"
+                />
+              </div>
+            )}
           </div>
 
           <CurveDivider className="-mb-px" fill="var(--paper)" />

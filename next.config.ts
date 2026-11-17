@@ -1,37 +1,29 @@
 import type { NextConfig } from "next";
 
 /**
- * Security headers.
+ * Published on GitHub Pages as a project site: the whole site is exported as
+ * static files to `out/` and served under https://lauanmo.github.io/portfolio.
  *
- * Only `strict-transport-security` was arriving in production — Vercel adds it.
- * Everything else was absent, which left the site embeddable in an iframe by
- * any origin: a page could frame it and overlay a fake contact form.
- *
- * `frame-ancestors 'self'` rather than `'none'`: it closes third-party framing,
- * which is the actual risk, while leaving same-origin iframes usable for
- * responsive testing. `X-Frame-Options` repeats it for older browsers that do
- * not read the CSP directive.
- *
- * A full CSP (`script-src` and friends) is deliberately not here. Next.js emits
- * inline bootstrap scripts, so a strict policy needs per-request nonces and
- * middleware — worth doing, but not something to bolt on blind. The XSS surface
- * is small meanwhile: no page renders user-supplied content.
+ * What a static export rules out, and what replaced it:
+ * - No server, so no API route: the contact form opens the visitor's email app
+ *   with the message filled in instead of posting to a database.
+ * - No image optimisation server: screenshots are stored already sized, as WebP,
+ *   and served as they are.
+ * - No custom response headers: GitHub Pages does not let a site set them, so
+ *   the security headers that Vercel sent (frame-ancestors, nosniff, …) are gone.
+ *   No page renders user-supplied content, which keeps that risk small.
  */
-const securityHeaders = [
-  { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
-  { key: "X-Frame-Options", value: "SAMEORIGIN" },
-  { key: "X-Content-Type-Options", value: "nosniff" },
-  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  {
-    key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
-  },
-];
+const basePath = "/portfolio";
 
 const nextConfig: NextConfig = {
-  async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
-  },
+  output: "export",
+  basePath,
+  // `projects/mandarim/index.html` instead of `projects/mandarim.html`, which
+  // every static host serves for `/projects/mandarim/` without configuration.
+  trailingSlash: true,
+  images: { unoptimized: true },
+  // next/image does not add the base path to a `src` string; lib/asset.ts does.
+  env: { NEXT_PUBLIC_BASE_PATH: basePath },
 };
 
 export default nextConfig;

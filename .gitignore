@@ -75,6 +75,9 @@ serviceAccount*.json
 Claude.md
 Claude_log.txt
 
+# Arquivos de trabalho da skill de design (direção, inspeções e capturas).
+/.taste-skill
+
 # Skills de agente instaladas por `npx skills add` — ferramenta de desenvolvimento
 # local, não faz parte do produto. São 40 arquivos de documentação vendorizada;
 # reinstalar é um comando. Para versioná-las, remova estas duas linhas.

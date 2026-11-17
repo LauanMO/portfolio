@@ -87,6 +87,21 @@
     opacity: 1;
     transform: none;
   }
+
+  /* Faint dotted grid behind the hero and behind card headers that have no
+     screenshot. */
+  .dot-grid {
+    background-image: radial-gradient(rgb(255 255 255 / 0.09) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  /* A card's screenshot, or its title, rises a little while the card is hovered. */
+  .shot-lift {
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .group:hover .shot-lift {
+    transform: translateY(-8px);
+  }
 }
 
 @keyframes rise {

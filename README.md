@@ -2,63 +2,51 @@
 
 [![CI](https://github.com/LauanMO/portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/LauanMO/portfolio/actions/workflows/ci.yml)
 
-Personal portfolio built with Next.js. Static by default — every page is
-pre-rendered at build time, so there is no server to keep warm.
+Personal portfolio built with Next.js and published on GitHub Pages at
+<https://lauanmo.github.io/portfolio>. The whole site is exported as static
+files, so there is no server at all.
 
 ## Stack
 
-| Layer     | Choice                                     |
-| --------- | ------------------------------------------ |
-| Framework | Next.js 16 (App Router)                    |
-| Language  | TypeScript                                 |
-| Styling   | Tailwind CSS v4 with CSS custom properties |
-| Fonts     | Outfit, self-hosted via `next/font`        |
-| Hosting   | Vercel                                     |
+| Layer     | Choice                                                 |
+| --------- | ------------------------------------------------------ |
+| Framework | Next.js 16 (App Router), static export                 |
+| Language  | TypeScript                                             |
+| Styling   | Tailwind CSS v4 with CSS custom properties             |
+| Fonts     | Outfit, self-hosted via `next/font`                    |
+| Hosting   | GitHub Pages, deployed by `.github/workflows/pages.yml` |
 
 ## Running locally
 
 ```bash
 npm install
-cp .env.example .env.local   # then fill in DATABASE_URL
 npm run dev
 ```
 
-Then open <http://localhost:3000>. Everything except the contact form works
-without a database.
+Then open <http://localhost:3000/portfolio/> — the site lives under
+`/portfolio` locally too, as it does on GitHub Pages.
+
+```bash
+npm run build   # static export to out/
+npm run lint    # eslint
+```
+
+## Publishing
+
+Every push to `main` runs the Pages workflow: it builds the static export and
+publishes `out/`. In the repository settings, **Pages → Source** must be set to
+**GitHub Actions** (once).
+
+`next.config.ts` explains what a static export rules out: API routes, the image
+optimisation server and custom response headers.
 
 ## Contact form
 
-The form posts to `app/api/contact/route.ts`, which writes to Postgres. It is
-the only server-rendered route — everything else is static.
-
-**Setup**
-
-1. Create a Postgres database (Neon or Supabase both work).
-2. Run `db/schema.sql` against it.
-3. Set `DATABASE_URL` to the **pooled** connection string — Neon's `-pooler`
-   host, or Supabase port 6543. The direct port exhausts connections once
-   serverless functions start scaling.
-4. Add the same variable in Vercel under Settings → Environment Variables.
-
-Never put the connection string in a file that git tracks. `.env*` is ignored;
-`.env.example` is the one exception and carries names only.
-
-**Abuse handling**
-
-- A honeypot field, hidden off-screen, that only bots fill in.
-- Length limits in the route *and* as `CHECK` constraints on the columns —
-  anyone can post straight to the endpoint and skip the route.
-- A per-instance throttle: three messages per minute per IP. Serverless
-  instances do not share memory, so this slows floods rather than stopping
-  them. Real rate limiting would need shared state such as Redis.
-- Database errors are logged server-side and never returned to the client;
-  driver errors can contain the connection string.
-
-```bash
-npm run build   # production build
-npm start       # serve the production build
-npm run lint    # eslint
-```
+GitHub Pages cannot run server code, so the form does not post anywhere: it
+opens the visitor's email app with my address, a subject and their message
+already filled in. The browser checks the fields first (required, email
+format), and the message is capped so the link stays within what email apps
+accept.
 
 ## Editing content
 
@@ -72,6 +60,12 @@ component.
 
 A project with no `repo` field renders as *Private repository* instead of a
 broken link.
+
+A project with an `image` shows that real screenshot on its card and at the top
+of its page, inside a browser window or a phone (`frame`), on a field of its own
+colour (`ground`). Screenshots live in `public/images/projects/` as WebP, at most
+1600px wide: a static export serves images exactly as they are stored. Projects
+without one show their name on the dark gradient instead.
 
 ## Design
 
@@ -89,7 +83,7 @@ the tokens.
 | -------------------- | -------------------------------------------------------- |
 | `ScrollProgress`     | Top bar tracking scroll depth                             |
 | `Reveal`             | Fades children up when they scroll into view              |
-| `HeroVisual`         | Floating code window that tilts toward the pointer        |
+| `HeroVisual`         | Code window with real snippets from the projects' repositories; tilts toward the pointer and moves to the next file on its own |
 | `CurveDivider`       | The arc between a dark section and a light one            |
 
 Two rules hold throughout:
@@ -117,11 +111,17 @@ app/
 └── projects/[slug]/page.tsx
 components/                 # presentational, no data fetching
 content/                    # all copy and configuration
+lib/asset.ts                # prefixes public files with the /portfolio base path
+public/images/projects/     # project screenshots
 ```
 
 ## Before deploying
 
-- Set `site.url` in `content/site.ts` to the real domain — canonical URLs, the
-  sitemap, and Open Graph tags all read from it.
+- Keep `site.url` in `content/site.ts` on the published address — canonical
+  URLs, the sitemap, and Open Graph tags all read from it.
 - Confirm the fields marked `REVIEW` in `content/site.ts`.
 - Add `site.linkedin`, or leave it empty to hide the link.
+
+## License
+
+[MIT](LICENSE).
