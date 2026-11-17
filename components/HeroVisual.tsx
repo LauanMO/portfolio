@@ -7,12 +7,10 @@ import { useEffect, useRef, useState } from "react";
  * each line can be checked against the file it names. `// …` marks the one
  * place where lines in between were skipped.
  */
-const SNIPPETS: { project: string; path: string; lang: "js" | "sql"; code: string }[] = [
+const SNIPPETS: { project: string; path: string; code: string }[] = [
   {
     project: "MandaRim",
-    path: "backend/src/routes/user.js",
-    lang: "js",
-    code: `const INTERVALS = [0, 1, 2, 4, 7, 15];
+    path: "backend/src/routes/user.js",    code: `const INTERVALS = [0, 1, 2, 4, 7, 15];
 const MAX_BOX = INTERVALS.length - 1;
 // …
   if (correct) {
@@ -24,25 +22,8 @@ const MAX_BOX = INTERVALS.length - 1;
   }`,
   },
   {
-    project: "Organiza+",
-    path: "supabase/migracoes/2026-10-22_ingredientes-custo-e-versao.sql",
-    lang: "sql",
-    code: `create table if not exists public.ingredientes (
-  id uuid primary key default gen_random_uuid(),
-  negocio_id uuid not null references public.negocios (id) on delete cascade,
-  nome text not null check (length(trim(nome)) between 1 and 60),
-  unidade text not null check (unidade in ('g', 'ml', 'un')),
-  preco_compra numeric(10, 2) check (preco_compra between 0 and 99999.99),
-  quantidade_compra numeric(12, 3) check (quantidade_compra between 1 and 1000000),
-  -- "Excluir" arquiva: some da lista e sai dos produtos.
-  arquivado boolean not null default false,
-  criado_em timestamptz not null default now(),`,
-  },
-  {
     project: "Plantão Vet",
-    path: "src/modelo/caso.ts",
-    lang: "js",
-    code: `export const casoSchema = z
+    path: "src/modelo/caso.ts",    code: `export const casoSchema = z
   .strictObject({
     id: texto,
     materia: texto,
@@ -55,9 +36,7 @@ const MAX_BOX = INTERVALS.length - 1;
   },
   {
     project: "Circula",
-    path: "api/src/rotas.ts",
-    lang: "js",
-    code: `const filtros = z.object({
+    path: "api/src/rotas.ts",    code: `const filtros = z.object({
   categoria: z.enum(CATEGORIAS).optional(),
   usuarioId: usuarioId.optional(),
   limite: z.coerce.number().int().positive().max(100).optional(),
@@ -69,10 +48,7 @@ export async function rotasAnuncios(app: FastifyInstance) {
   },
 ];
 
-const KEYWORDS = {
-  js: new Set(["const", "let", "if", "else", "return", "export", "async", "await", "function", "new", "true", "false", "null"]),
-  sql: new Set(["create", "table", "if", "not", "exists", "primary", "key", "default", "references", "on", "delete", "cascade", "check", "between", "and", "in", "null", "unique", "uuid", "text", "numeric", "boolean", "timestamptz", "true", "false"]),
-};
+const KEYWORDS = new Set(["const", "let", "if", "else", "return", "export", "async", "await", "function", "new", "true", "false", "null"]);
 
 const COLOURS = {
   keyword: "text-fuchsia-300",
@@ -83,10 +59,9 @@ const COLOURS = {
   plain: "text-ink-text/90",
 };
 
-/** Just enough highlighting for these four snippets: no parser, one pass per line. */
-function highlight(line: string, lang: "js" | "sql") {
-  const comment = lang === "sql" ? "--" : "//";
-  const at = line.indexOf(comment);
+/** Just enough highlighting for these snippets: no parser, one pass per line. */
+function highlight(line: string) {
+  const at = line.indexOf("//");
   const code = at === -1 ? line : line.slice(0, at);
   const parts: { text: string; tone: keyof typeof COLOURS }[] = [];
 
@@ -94,7 +69,7 @@ function highlight(line: string, lang: "js" | "sql") {
     const [text, string, number, word] = match;
     if (string) parts.push({ text, tone: "string" });
     else if (number) parts.push({ text, tone: "number" });
-    else if (word && KEYWORDS[lang].has(word)) parts.push({ text, tone: "keyword" });
+    else if (word && KEYWORDS.has(word)) parts.push({ text, tone: "keyword" });
     else if (word && code[(match.index ?? 0) + word.length] === "(") parts.push({ text, tone: "call" });
     else parts.push({ text, tone: "plain" });
   }
@@ -226,7 +201,7 @@ export function HeroVisual() {
                     {i + 1}
                   </span>
                   <span className="whitespace-pre">
-                    {highlight(line, snippet.lang).map((part, j) => (
+                    {highlight(line).map((part, j) => (
                       <span key={j} className={COLOURS[part.tone]}>
                         {part.text}
                       </span>
