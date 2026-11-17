@@ -6,24 +6,29 @@ import { useEffect, useRef, useState } from "react";
  * Real code, copied line for line from the projects' public repositories, so
  * each line can be checked against the file it names. `// …` marks the one
  * place where lines in between were skipped.
+ *
+ * Only small, harmless front-end helpers: nothing from back ends, APIs or
+ * databases, and no logic that matters to how a project works.
  */
 const SNIPPETS: { project: string; path: string; code: string }[] = [
   {
     project: "MandaRim",
-    path: "backend/src/routes/user.js",    code: `const INTERVALS = [0, 1, 2, 4, 7, 15];
-const MAX_BOX = INTERVALS.length - 1;
-// …
-  if (correct) {
-    box = Math.min(box + 1, MAX_BOX);
-    correctCount += 1;
-  } else {
-    box = Math.max(box - 1, 0);
-    wrongCount += 1;
-  }`,
+    path: "frontend/src/speech.ts",
+    code: `function speakViaWebSpeech(text: string): boolean {
+  if (!('speechSynthesis' in window)) return false;
+  const voices = window.speechSynthesis.getVoices();
+  const zh = voices.find((v) => v.lang?.toLowerCase().startsWith('zh'));
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = zh?.lang || 'zh-CN';
+  if (zh) u.voice = zh;
+  u.rate = 0.85;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(u);`,
   },
   {
     project: "Plantão Vet",
-    path: "src/modelo/caso.ts",    code: `export const casoSchema = z
+    path: "src/modelo/caso.ts",
+    code: `export const casoSchema = z
   .strictObject({
     id: texto,
     materia: texto,
@@ -36,15 +41,15 @@ const MAX_BOX = INTERVALS.length - 1;
   },
   {
     project: "Circula",
-    path: "api/src/rotas.ts",    code: `const filtros = z.object({
-  categoria: z.enum(CATEGORIAS).optional(),
-  usuarioId: usuarioId.optional(),
-  limite: z.coerce.number().int().positive().max(100).optional(),
-});
+    path: "web/src/formato.ts",
+    code: `const MOEDA = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+// …
+/** Doação vira o texto "Doação"; venda vira "R$ 80,00". */
+export function formatarPreco(preco: number | null): string {
+  if (preco === null) return 'Doação';
 
-export async function rotasAnuncios(app: FastifyInstance) {
-  // Sonda de saúde. Útil no deploy e para conferir rapidamente se a API subiu.
-  app.get('/health', async () => ({ status: 'ok' }));`,
+  return MOEDA.format(preco);
+}`,
   },
 ];
 
@@ -61,7 +66,7 @@ const COLOURS = {
 
 /** Just enough highlighting for these snippets: no parser, one pass per line. */
 function highlight(line: string) {
-  const at = line.indexOf("//");
+  const at = line.search(/\/\/|\/\*/);
   const code = at === -1 ? line : line.slice(0, at);
   const parts: { text: string; tone: keyof typeof COLOURS }[] = [];
 
