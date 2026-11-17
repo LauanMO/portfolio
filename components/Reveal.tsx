@@ -4,6 +4,7 @@ import { useEffect, useRef, type ElementType, type ReactNode } from "react";
 
 type RevealProps = {
   children: ReactNode;
+  /** Only to stagger items that come into view together, like the columns of one grid row. */
   delay?: number;
   className?: string;
   as?: ElementType;
@@ -39,7 +40,9 @@ export function Reveal({ children, delay = 0, className = "", as }: RevealProps)
           observer.unobserve(entry.target);
         }
       },
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
+      // Fires as soon as any part of it is on screen, so it starts fading in at
+      // the bottom edge instead of once it is already well into view.
+      { threshold: 0 },
     );
 
     observer.observe(el);

@@ -145,8 +145,8 @@ export default async function ProjectPage({ params }: PageProps) {
                 </h2>
               </Reveal>
               <div className="mt-6 flex flex-col gap-6">
-                {project.details.map((detail, i) => (
-                  <Reveal key={detail.heading} delay={i * 90}>
+                {project.details.map((detail) => (
+                  <Reveal key={detail.heading}>
                     <div className="rounded-2xl border border-paper-line bg-paper-soft p-6 transition-colors duration-300 hover:border-brand/30">
                       <h3 className="text-lg font-semibold tracking-tight">{detail.heading}</h3>
                       <p className="mt-2 leading-relaxed text-paper-muted">{detail.body}</p>

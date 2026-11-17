@@ -84,7 +84,7 @@ export default function Home() {
 
           <div className="mt-14 grid gap-6 sm:grid-cols-2">
             {projects.map((project, i) => (
-              <Reveal key={project.slug} delay={i * 120} className="h-full">
+              <Reveal key={project.slug} delay={(i % 2) * 120} className="h-full">
                 <ProjectCard project={project} />
               </Reveal>
             ))}
@@ -103,7 +103,7 @@ export default function Home() {
 
           <dl className="mt-14 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
             {site.skills.map((group, i) => (
-              <Reveal key={group.group} delay={i * 90}>
+              <Reveal key={group.group} delay={(i % 3) * 90}>
                 <dt className="text-sm font-semibold uppercase tracking-widest text-brand">
                   {group.group}
                 </dt>
