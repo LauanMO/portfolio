@@ -1,5 +1,12 @@
 {
+  "framework": null,
+  "outputDirectory": "out",
   "redirects": [
+    {
+      "source": "/",
+      "destination": "https://lauanmo.github.io/portfolio/",
+      "permanent": true
+    },
     {
       "source": "/:path*",
       "destination": "https://lauanmo.github.io/portfolio/:path*",
