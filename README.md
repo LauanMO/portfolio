@@ -40,6 +40,10 @@ publishes `out/`. In the repository settings, **Pages → Source** must be set t
 `next.config.ts` explains what a static export rules out: API routes, the image
 optimisation server and custom response headers.
 
+The site used to live at <https://lauanmoreira.vercel.app>. `vercel.json` keeps
+that address as a permanent redirect to the same page here, so links already
+shared keep working.
+
 ## Contact form
 
 GitHub Pages cannot run server code, so the form does not post anywhere: it
